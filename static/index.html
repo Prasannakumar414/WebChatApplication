@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>ClientPage</title>
+  </head>
+  <body>
+    <h2>Chat with Server</h2>
+
+    <script>
+        let socket = new WebSocket("ws://127.0.0.1:8080/ws");
+        console.log("Attempting Connection...");
+
+        socket.onopen = () => {
+            console.log("Successfully Connected");
+        }
+        var button = document.createElement("button");
+        button.innerHTML = "Enter Message";
+
+// 2. Append somewhere
+        var body = document.getElementsByTagName("body")[0];
+        body.appendChild(button);
+
+// 3. Add event handler
+        button.addEventListener ("click", function() {
+            var name = window.prompt("Enter your name: ");
+            var msg = window.prompt("Enter your message: ");
+            //alert("your message is " + msg);
+            var p = document.createElement("p");
+            var textNode = document.createTextNode("Client: "+msg);
+            p.appendChild(textNode);
+            document.body.appendChild(p);
+            socket.send("msg from "+name+" is "+msg)
+        });
+        
+        socket.onmessage = function (evt) { 
+                  var received_msg = evt.data;
+                  const p = document.createElement("p");
+                  const textNode = document.createTextNode("Server:"+received_msg);
+                  p.appendChild(textNode);
+                  document.body.appendChild(p);
+                  
+               };
+        
+        socket.onclose = event => {
+            console.log("Socket Closed Connection: ", event);
+            socket.send("Client Closed!")
+        };
+
+        socket.onerror = error => {
+            console.log("Socket Error: ", error);
+        };
+
+    </script>
+  </body>
+</html>
